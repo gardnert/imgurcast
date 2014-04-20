@@ -65,8 +65,10 @@ public class MainActivity extends ActionBarActivity{
 	private Button buttonRefresh;
 	private TextView titlePicture;
 	private ListView commentsListView;
-	int current = 0;
+	static int current = 0;
 	ArrayList<String> comments = new ArrayList<String>();
+	static String subreddit = "";
+	static boolean customPlace = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -223,65 +225,129 @@ public class MainActivity extends ActionBarActivity{
 						wasLaunched);
 				ArrayList<String> idsStatic = new ArrayList<String>();
 				ArrayList<String> titlesStatic = new ArrayList<String>();
+				if(!customPlace){
+					
 
-				String line = "";
+					String line = "";
 
-				try {
+					try {
 
-					URL url = new URL(
-							"https://api.imgur.com/3/gallery/hot/viral/0.json");
+						URL url = new URL(
+								"https://api.imgur.com/3/gallery/hot/viral/0.json");
 
-					HttpURLConnection conn = (HttpURLConnection) url
-							.openConnection();
-					conn.setRequestMethod("GET");
-					conn.setRequestProperty("Authorization", "Client-ID "
-							+ CLIENT_ID);
+						HttpURLConnection conn = (HttpURLConnection) url
+								.openConnection();
+						conn.setRequestMethod("GET");
+						conn.setRequestProperty("Authorization", "Client-ID "
+								+ CLIENT_ID);
 
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(conn.getInputStream()));
-					String tempLine;
-					while ((tempLine = reader.readLine()) != null) {
-						line = line + tempLine;
-					}
-
-					reader.close();
-
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-				try {
-					JSONObject imgurJsonObject = (JSONObject) new JSONObject(
-							line);
-					JSONArray data = (JSONArray) imgurJsonObject.get("data");
-					for (int i = 0; i < data.length(); i++) {
-						JSONObject imageData = (JSONObject) data.get(i);
-						if (!imageData.getBoolean("is_album")) {
-							idsStatic.add((String) imageData.get("id"));
-							titlesStatic.add((String) imageData.get("title"));
+						BufferedReader reader = new BufferedReader(
+								new InputStreamReader(conn.getInputStream()));
+						String tempLine;
+						while ((tempLine = reader.readLine()) != null) {
+							line = line + tempLine;
 						}
+
+						reader.close();
+
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+					try {
+						JSONObject imgurJsonObject = (JSONObject) new JSONObject(
+								line);
+						JSONArray data = (JSONArray) imgurJsonObject.get("data");
+						for (int i = 0; i < data.length(); i++) {
+							JSONObject imageData = (JSONObject) data.get(i);
+							if (!imageData.getBoolean("is_album")) {
+								idsStatic.add((String) imageData.get("id"));
+								titlesStatic.add((String) imageData.get("title"));
+							}
+						}
+
+					} catch (JSONException e) {
+
+						e.printStackTrace();
+					}
+					MediaMetadata mediaMetadata = new MediaMetadata(
+							MediaMetadata.MEDIA_TYPE_MOVIE);
+					mediaMetadata.putString(MediaMetadata.KEY_TITLE,
+							titlesStatic.get(current));
+					MediaInfo mediaInfo = new MediaInfo.Builder(
+							"http://i.imgur.com/" + idsStatic.get(current) + ".png")
+							.setContentType("image/gif")
+							.setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+							.setMetadata(mediaMetadata).build();
+
+					try {
+						mVideoCastManager.loadMedia(mediaInfo, true, 1);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 
-				} catch (JSONException e) {
+					System.out.println("Application Connected Custom");
+				}else{
+					
+					String line = "";
 
-					e.printStackTrace();
+					try {
+						String urlstring = "https://api.imgur.com/3/gallery/r/"+subreddit+"/time/1";
+						URL url = new URL(urlstring);
+
+						HttpURLConnection conn = (HttpURLConnection) url
+								.openConnection();
+						conn.setRequestMethod("GET");
+						conn.setRequestProperty("Authorization", "Client-ID "
+								+ CLIENT_ID);
+
+						BufferedReader reader = new BufferedReader(
+								new InputStreamReader(conn.getInputStream()));
+						String tempLine;
+						while ((tempLine = reader.readLine()) != null) {
+							line = line + tempLine;
+						}
+
+						reader.close();
+
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+					
+					
+					try {
+						JSONObject imgurJsonObject = (JSONObject) new JSONObject(
+								line);
+						JSONArray data = (JSONArray) imgurJsonObject.get("data");
+						for (int i = 0; i < data.length(); i++) {
+							JSONObject imageData = (JSONObject) data.get(i);
+							
+								idsStatic.add((String) imageData.get("id"));
+								titlesStatic.add((String) imageData.get("title"));
+							
+						}
+
+					} catch (JSONException e) {
+
+						e.printStackTrace();
+					}
+					MediaMetadata mediaMetadata = new MediaMetadata(
+							MediaMetadata.MEDIA_TYPE_MOVIE);
+					mediaMetadata.putString(MediaMetadata.KEY_TITLE,
+							titlesStatic.get(current));
+					MediaInfo mediaInfo = new MediaInfo.Builder(
+							"http://i.imgur.com/" + idsStatic.get(current) + ".png")
+							.setContentType("image/gif")
+							.setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+							.setMetadata(mediaMetadata).build();
+
+					try {
+						mVideoCastManager.loadMedia(mediaInfo, true, 1);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
 				}
-				MediaMetadata mediaMetadata = new MediaMetadata(
-						MediaMetadata.MEDIA_TYPE_MOVIE);
-				mediaMetadata.putString(MediaMetadata.KEY_TITLE,
-						titlesStatic.get(0));
-				MediaInfo mediaInfo = new MediaInfo.Builder(
-						"http://i.imgur.com/" + idsStatic.get(0) + ".png")
-						.setContentType("image/gif")
-						.setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-						.setMetadata(mediaMetadata).build();
-
-				try {
-					mVideoCastManager.loadMedia(mediaInfo, true, 1);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				System.out.println("Application Connected Custom");
+				
 
 			}
 
@@ -332,9 +398,11 @@ public class MainActivity extends ActionBarActivity{
 					// edit text
 					DownloadTask dl1 = new DownloadTask(MainActivity.this);
 					dl1.execute("SUBREDDIT https://api.imgur.com/3/gallery/r/"+userInput.getText().toString().trim()+"/time/1");
+					customPlace= true;
+					subreddit = userInput.getText().toString();
 					DownloadTask dl3 = new DownloadTask(MainActivity.this);
 					dl3.execute("comments");
-					System.out.println(userInput.getText().toString());
+					
 				    }
 				  })
 				.setNegativeButton("Cancel",
