@@ -38,6 +38,7 @@ import android.view.View.OnClickListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.media.MediaRouter.RouteInfo;
+import android.text.method.ScrollingMovementMethod;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -94,6 +95,7 @@ public class MainActivity extends ActionBarActivity{
 		buttonRefresh = (Button) findViewById(R.id.buttonRefresh);
 		titlePicture = (TextView) findViewById(R.id.titlePicture);
 		commentsListView = (ListView) findViewById(R.id.commentsList);
+		titlePicture.setMovementMethod(new ScrollingMovementMethod());
 		dl2.execute("comments");
 		// onclick listeners
 		

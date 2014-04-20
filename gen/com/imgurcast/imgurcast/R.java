@@ -1324,7 +1324,7 @@ containing a value of this type.
         public static final int checkbox=0x7f050030;
         public static final int chooseSubreddit=0x7f050061;
         public static final int collapseActionView=0x7f05000d;
-        public static final int commentsList=0x7f050044;
+        public static final int commentsList=0x7f050043;
         public static final int controllers=0x7f050046;
         public static final int default_activity_button=0x7f05002b;
         public static final int dialog=0x7f05000e;
@@ -1391,7 +1391,7 @@ containing a value of this type.
         public static final int tabMode=0x7f050002;
         public static final int terrain=0x7f05001b;
         public static final int textContainer=0x7f050053;
-        public static final int textView1=0x7f050043;
+        public static final int textView1=0x7f050044;
         public static final int textView2=0x7f05004c;
         public static final int texts=0x7f05004e;
         public static final int title=0x7f05002e;
